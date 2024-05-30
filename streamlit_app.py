@@ -2,39 +2,26 @@ import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
+from pyplate import Substance, Container, Plate, Recipe
+import time
 
-"""
-# Welcome to Streamlit!
+water = Substance.liquid(name='H2O', mol_weight=18.01528, density=1.0)
+water_stock = Container(name='water stock', initial_contents=[(water, '1 L')])
+plate1 = Plate('plate1', max_volume_per_well='60 uL')
+plate2 = Plate('plate2', max_volume_per_well='60 uL')
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+recipe = Recipe()
+recipe.uses(water_stock, plate1, plate2)
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+recipe.transfer(source=water_stock, destination=plate1, quantity='10 uL')
+recipe.transfer(source=plate1, destination=plate2, quantity='3 uL')
+recipe.transfer(source=plate1['C:3'], destination=plate2['A:1'], quantity='1 uL')
+recipe.bake()
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+steps = recipe.steps
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
+index = st.slider('step', 1, len(steps))
+placeholder = st.empty()
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
+st.html(steps[index-1]._repr_html_())
 
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
-
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
