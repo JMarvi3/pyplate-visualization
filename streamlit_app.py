@@ -35,6 +35,12 @@ recipe.transfer(source=plate1['C:3'], destination=plate2['A:1'], quantity='1 uL'
 recipe.bake()""")
 index = st.slider('step', 1, len(steps))
 placeholder = st.empty()
-
+st.markdown("""
+<style>
+   table {
+      caption-side: top;
+   }
+</style>
+""", unsafe_allow_html=True)
 st.html(steps[index-1]._repr_html_())
 
